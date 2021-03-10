@@ -18,7 +18,6 @@ router.post('/addPost/:id', async (req, res) => {
 			return res.status(404).send({ error: 'User not found' });
 		}
         user.posts.push(newPost)
-
 		await user.save();
 		res.status(201).send(user);
 	} catch (err) {
@@ -32,7 +31,8 @@ router.get('/getPost/:id', async (req, res) => {
 		if (!user) {
 			return res.status(404).send({ error: 'User not found' });
 		}
-		res.status(201).send(user.posts);
+		
+		res.status(200).send(user);
 	} catch (err) {
 		res.status(500).send();
 	}
@@ -48,7 +48,7 @@ router.get('/getUser/:id/getPost/:pid', async (req, res) => {
           if(e._id == req.params.pid)
               return e
          })
-		res.status(201).send(filter);
+		res.status(200).send(filter);
 	} catch (err) {
 		res.status(500).send();
 	}

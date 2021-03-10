@@ -22,7 +22,9 @@ router.post('/getUser/:id/getPost/:pid/addComment', async (req, res) => {
 		}
          user.posts.map((e)=>{
 			 if (e._id == PostId) {
+				 console.log("before");
 				 e.comments.push(newComment) 
+				 console.log("after");
 				 }
 				 else{
 					return res.status(404).send({ error: 'Post not found' });
@@ -30,8 +32,8 @@ router.post('/getUser/:id/getPost/:pid/addComment', async (req, res) => {
 				
 			})
 			
-			 await user.save();
-			
+			  user.save();
+			  console.log(user);
 		res.status(201).send(user);
 	} catch (err) {
 		res.status(500).send();

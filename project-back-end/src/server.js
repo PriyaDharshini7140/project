@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const bodyParser = require("body-parser")
 const user = require('./routes/user');
 const post = require("./routes/post")
 const comment = require('./routes/comment')
@@ -11,7 +12,7 @@ const port = 4000;
 const app = express();
 app.use(cors());
 app.use(express.json());
-
+app.use(bodyParser.json());
 
 mongoose.connect(db,{
     useNewUrlParser: true,

@@ -21,7 +21,12 @@ const commentSchema = new Schema({
         type:String,
         required:true
     }, 
-   replys:[]
+   replys:[
+    {
+        type: Schema.Types.ObjectId,
+        ref: 'replys'
+    },
+   ]
    
 });
 module.exports = Comment = mongoose.model('comments',commentSchema);
