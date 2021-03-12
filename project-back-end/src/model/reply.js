@@ -1,7 +1,11 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const replySchema = new Schema({
-    comment_id:{
+    user_id:{
+        type: Schema.Types.ObjectId,
+        ref: 'users'
+},
+ comment_id:{
         type: Schema.Types.ObjectId,
         ref: 'comments'
     },

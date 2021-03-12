@@ -2,42 +2,44 @@ const express = require('express');
 
 const router = express.Router();
 
-const User = require('../model/users');
-
-const Post = require('../model/post');
 
 const Comment = require('../model/comment')
 
 
-//1. add a new post
-router.post('/getUser/:id/getPost/:pid/addComment', async (req, res) => {
+//1. add a new Comment
+router.post('/addComment', async (req, res) => {
 	const newComment = new Comment(req.body);
-	console.log(newComment);
-    const UserId =  req.params.id;
-    const PostId = req.params.pid
 	try {
-        const user = await User.findById(UserId);
-		if (!user) {
-			return res.status(404).send({ error: 'User not found' });
-		}
-         user.posts.map((e)=>{
-			 if (e._id == PostId) {
-				 console.log("before");
-				 e.comments.push(newComment) 
-				 console.log("after");
-				 }
-				 else{
-					return res.status(404).send({ error: 'Post not found' });
-				 }
-				
-			})
-			
-			  user.save();
-			  console.log(user);
-		res.status(201).send(user);
+		await newComment.save()
+		.then((e)=>res.status(201).send({data:e}))
+		.catch((e)=> console.log(e))
 	} catch (err) {
 		res.status(500).send();
 	}
 });
+
+// 2.to view all comment
+
+router.post('/getComment', async (req, res) => {
+	try {
+	 await Comment.find({user_id:req.body.user_id,post_id:req.body.post_id})
+	.then((e)=>res.status(201).send({data:e}))
+	.catch((e)=>console.log(e));
+	} catch (err) {
+		res.status(500).send();
+	}
+});
+
+// 3.to view a particular comment
+router.post('/get_a_Comment', async (req, res) => {
+	try {
+	 await Comment.findOne({user_id:req.body.user_id,post_id:req.body.post_id,_id:req.body._id})
+	.then((e)=>res.status(201).send({data:e}))
+	.catch((e)=>console.log(e));
+	} catch (err) {
+		res.status(500).send();
+	}
+});
+
 
 module.exports = router;

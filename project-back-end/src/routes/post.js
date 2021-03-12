@@ -10,70 +10,35 @@ const Post = require('../model/post');
 
 
 //1. add a new post
-router.post('/addPost/:id', async (req, res) => {
+router.post('/addPost', async (req, res) => {
 	const newPost = new Post(req.body);
 	try {
-        const user = await User.findById(req.params.id);
-		if (!user) {
-			return res.status(404).send({ error: 'User not found' });
-		}
-        user.posts.push(newPost)
-		await user.save();
-		res.status(201).send(user);
+		await newPost.save()
+		.then((e)=>res.status(201).send({data:e}))
+		.catch((e)=> console.log(e))
 	} catch (err) {
 		res.status(500).send();
 	}
 });
 // 2.to view all post
-router.get('/getPost/:id', async (req, res) => {
+router.post('/getPost', async (req, res) => {
 	try {
-        const user = await User.findById(req.params.id);
-		if (!user) {
-			return res.status(404).send({ error: 'User not found' });
-		}
-		
-		res.status(200).send(user);
+	 await Post.find({user_id:req.body.user_id})
+	.then((e)=>res.status(201).send({data:e}))
+	.catch((e)=>console.log(e));
 	} catch (err) {
 		res.status(500).send();
 	}
 });
-// 3.particular post 
-router.get('/getUser/:id/getPost/:pid', async (req, res) => {
+// 3.to view a particular post
+router.post('/get_a_Post', async (req, res) => {
 	try {
-        const user = await User.findById(req.params.id);
-		if (!user) {
-			return res.status(404).send({ error: 'User not found' });
-		}
-      const filter=  user.posts.map((e)=>{
-          if(e._id == req.params.pid)
-              return e
-         })
-		res.status(200).send(filter);
+	 await Post.findOne({user_id:req.body.user_id,_id:req.body._id})
+	.then((e)=>res.status(201).send({data:e}))
+	.catch((e)=>console.log(e));
 	} catch (err) {
 		res.status(500).send();
 	}
 });
 
-router.delete('/:id/deletePost/:pid', async (req, res) => {
-   
-	const UserId = req.params.id;
-	const PostId = req.params.pid;
-    // console.log(UserId,PostId);
-	try {
-		const user = await User.findById(UserId);
-        // console.log(user);
-		
-		if (!user) {
-			return res.status(404).send({ error: 'user not found' });
-		}
-		user.posts.map((e)=>{
-            if(e._id == PostId)
-           console.log(e)
-        })
-	    await user.save()
-		res.send(user);
-		} catch (error) {
-		res.status(500).send({ error: 'Internal server error' });
-	}
-});
 module.exports = router;

@@ -1,11 +1,15 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const userSchema = new Schema({
-    first_name:{
+    name:{
         type:String,
         required:true
     },
-    last_name:{
+    age:{
+        type:Number,
+        required:true
+    },
+    phone_number:{
         type:String,
         required:true
     },
@@ -27,11 +31,17 @@ const userSchema = new Schema({
         type:Date,
         default:Date.now()
     },
-    posts:[
-        {
-        type: Schema.Types.ObjectId,
-        ref: 'posts',
-        }
-    ]
 });
+
+
+
+
+
+
+
+
+
+
+
+
 module.exports = User = mongoose.model('users',userSchema);

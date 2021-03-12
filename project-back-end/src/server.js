@@ -1,12 +1,14 @@
+require("dotenv").config()
+
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser")
+
 const user = require('./routes/user');
 const post = require("./routes/post")
 const comment = require('./routes/comment')
+const reply = require('./routes/reply')
 const cors = require("cors");
-
-const db = "mongodb+srv://priyadharshini:Priya_7140@cluster0.nfn6p.mongodb.net/project-database?retryWrites=true&w=majority";
 const port = 4000;
 
 const app = express();
@@ -14,7 +16,7 @@ app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
 
-mongoose.connect(db,{
+mongoose.connect(process.env.DB,{
     useNewUrlParser: true,
   useUnifiedTopology: true,
   useCreateIndex: true
@@ -27,6 +29,7 @@ mongoose.connect(db,{
  app.use('/user',user);
  app.use('/post',post);
  app.use('/comment',comment);
+ app.use('/reply',reply);
 app.listen(port,(err)=>{
 if(err){
     console.log( {err : err});
