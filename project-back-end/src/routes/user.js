@@ -42,9 +42,8 @@ router.post('/getUser', async (req, res) => {
 	   const user= await User.find()
 	//    console.log(user);
 	const userDetails= user.map((e)=>{
-		   if(e._id == req.body._id)
-		   {
-			   return({
+		   
+		   return({
 				   _id:e._id,
 				   name: e.name,
 				   age:e.age,
@@ -54,21 +53,17 @@ router.post('/getUser', async (req, res) => {
 				   password:e.password,
 				   post:[]
 			   })
-}
-		   else{
-			return res.status(404).send({ error: 'User not found' });
-		   }
-	   })
+
+		    })
 	   
 	    
 
 
 
 	   const post = await Post.find()
-        //  console.log(post);
+	  const postID = post.map(e=>{return e._id})
        const postDetails= post.map((e)=>{
-		if(e.user_id == req.body.user_id)
-		{
+		
 			
 			return({
 				_id:e._id,
@@ -81,54 +76,86 @@ router.post('/getUser', async (req, res) => {
 				comments:[]
 			})
 			
-        }
-		else{
-		 return res.status(404).send({ error: 'post not found' });
-		}
 	})
 
+// console.log(postDetails);
 
 
 
+// 	const comment = await Comment.find()
+// 	//  console.log(comment);
+//    const commentDetails= comment.map((e)=>{
+// 	if(e.user_id == req.body.user_id && e.post_id == req.body.post_id )
+// 	{
 
-	const comment = await Comment.find()
-	//  console.log(comment);
-   const commentDetails= comment.map((e)=>{
-	if(e.user_id == req.body.user_id && e.post_id == req.body.post_id )
-	{
-
-		return({
-			_id:e._id,
-			user_name: e.user_name,
-		comment_text:e.comment_text,
-			post_url: e.post_url,
-			category: e.category,
-			up_vote:e.up_vote,
-			down_vote:e.down_vote,
-			replys:[]
-		})
+// 		return({
+// 			_id:e._id,
+// 			user_name: e.user_name,
+// 		comment_text:e.comment_text,
+// 			up_vote:e.up_vote,
+// 			down_vote:e.down_vote,
+// 			replys:[]
+// 		})
 		
-	}
-	else{
-	 return res.status(404).send({ error: 'post not found' });
-	}
-})
-// console.log(commentDetails);
+// 	}
+// 	else{
+// 	 return res.status(404).send({ error: 'post not found' });
+// 	}
+// })
+// // console.log(commentDetails);
+
+
+// const reply = await Reply.find()
+// 	//  console.log(comment);
+//    const replyDetails= reply.map((e)=>{
+// 	if(e.user_id == req.body.user_id && e.comment_id == req.body.comment_id)
+// 	{
+
+// 		return({
+// 			_id:e._id,
+			
+// 		reply_text:e.reply_text,
+			
+// 			up_vote:e.up_vote,
+// 			down_vote:e.down_vote,
+			
+// 		})
+		
+// 	}
+// 	else{
+// 	 return res.status(404).send({ error: 'post not found' });
+// 	}
+// })
+// // console.log(replyDetails);
+
+
+
+// commentDetails.map(e =>{
+// 	if(e.user_id == req.body.user_id && e.comment_id == req.body.comment_id )
+// 	console.log("reply push");
+// 	return e.replys.push(replyDetails)
+//  })
  
 
- postDetails.map(e =>{
-	if(e.user_id == req.body.user_id && e.post_id == req.body.post_id )
-	return e.comments.push(commentDetails)
- })
+//  postDetails.map(e =>{
+// 	if(e.user_id == req.body.user_id && e.post_id == req.body.post_id )
+// 	console.log("comment push");
+// 	return e.comments.push(commentDetails)
+//  })
 
 
 
 
   userDetails.map(e =>{
-		if(e._id == req.body._id)
-		return e.post.push(postDetails)
+	//   console.log(e);
+		
+	// 		console.log(e._id);
+		 return	e.post.push(postDetails);
+		
+		
 	 })
-	
+
+
 
 			 
 		res.status(200).send(userDetails).catch((e)=>console.log(e))
