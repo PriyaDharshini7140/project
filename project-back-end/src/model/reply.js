@@ -9,10 +9,6 @@ const replySchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'comments'
     },
-    user_name:{
-        type:String,
-        required:true
-    },
     reply_text:{
         type:String,
         required:true

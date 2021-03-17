@@ -18,26 +18,46 @@ router.post('/addComment', async (req, res) => {
 	}
 });
 
-// 2.to view all comment
+// 2.update a comment
+router.patch('/updateComment/:id', async (req, res) => {
+	const updates = Object.keys(req.body);
+    console.log(updates);
+	const allowedUpdates = ['up_vote','down_vote'];
+	const isValidOperation = updates.every((update) => {
+		return allowedUpdates.includes(update);
+	});
 
-router.post('/getComment', async (req, res) => {
+	if (!isValidOperation) {
+		return res.status(400).send({ error: 'Invalid Operation' });
+	}
+
 	try {
-	 await Comment.find({user_id:req.body.user_id,post_id:req.body.post_id})
-	.then((e)=>res.status(201).send({data:e}))
-	.catch((e)=>console.log(e));
-	} catch (err) {
-		res.status(500).send();
+		const comment = await Comment.findById(req.params.id)
+        console.log(comment);
+		if (!comment) {
+           
+			return res.status(404).send({ error: 'comment not found' });
+		}
+		updates.forEach((update) => {
+			comment[update] = req.body[update];
+		});
+		await comment.save();
+		res.send(comment);
+	} catch (error) {
+		res.status(500).send({ error: 'Internal server error'});
 	}
 });
-
-// 3.to view a particular comment
-router.post('/get_a_Comment', async (req, res) => {
+// 3.delete a comment
+router.delete('/deleteComment', async (req, res) => {
+    
 	try {
-	 await Comment.findOne({user_id:req.body.user_id,post_id:req.body.post_id,_id:req.body._id})
-	.then((e)=>res.status(201).send({data:e}))
-	.catch((e)=>console.log(e));
-	} catch (err) {
-		res.status(500).send();
+		const comment = await Comment.findOneAndDelete({_id:req.body._id});
+		if (!comment) {
+			return res.status(404).send({ error: 'comment not found' });
+		}
+		res.send(comment);
+	} catch (error) {
+		res.status(500).send({ error: 'Internal server error' });
 	}
 });
 

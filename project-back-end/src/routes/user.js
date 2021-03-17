@@ -39,175 +39,123 @@ router.post('/addUser', async (req, res) => {
 // 3.to view a particular user
 router.post('/getUser', async (req, res) => {
 		try {
+
+			const post= await Post.find()
+			//    console.log(post);
+			const postDetails= post.map((e)=>{
+				 return{
+						   _id:e._id,
+						   user_id:e.user_id,
+						   post_text:e.post_text,
+						   post_url:e.post_url,
+						   category:e.category,
+						   up_vote:e.up_vote,
+						   down_vote:e.down_vote,
+						   comments:[]
+					   }
+		
+			   })
+
+
 	   const user= await User.find()
-	//    console.log(user);
+	
 	const userDetails= user.map((e)=>{
-		   
-		   return({
+		
+	       return {
 				   _id:e._id,
-				   name: e.name,
+				   user_name: e.user_name,
 				   age:e.age,
 				   phone_number: e.phone_number,
 				   email_id: e.email_id,
 				   gender:e.gender,
 				   password:e.password,
-				   post:[]
-			   })
+				   profile_picture:e.profile_picture,
+				   posts:[postDetails]
+		   }
 
-		    })
+	   })
 	   
-	    
+	console.log(userDetails);  
+
+   
+
+    // console.log(postDetails);  
+
+	const comment= await Comment.find({post_id:req.body.post_id})
+	//    console.log(post);
+	const commentDetails= post.map((e)=>{
+		 return{
+				   _id:e._id,
+				   comment_text:e.comment_text,
+				   up_vote:e.up_vote,
+				   down_vote:e.down_vote,
+				   replys:[]
+			   }
+
+	   })
+
+	//    postDetails.map((e)=>{
+	// 	if(e._id== req.body.post_id)
+	// 	e.comments.push(commentDetails)
+	// })
 
 
-
-	   const post = await Post.find()
-	  const postID = post.map(e=>{return e._id})
-       const postDetails= post.map((e)=>{
-		
-			
-			return({
-				_id:e._id,
-				user_name: e.user_name,
-				post_text:e.post_text,
-				post_url: e.post_url,
-				category: e.category,
-				up_vote:e.up_vote,
-				down_vote:e.down_vote,
-				comments:[]
-			})
-			
-	})
-
-// console.log(postDetails);
-
-
-
-// 	const comment = await Comment.find()
-// 	//  console.log(comment);
-//    const commentDetails= comment.map((e)=>{
-// 	if(e.user_id == req.body.user_id && e.post_id == req.body.post_id )
-// 	{
-
-// 		return({
-// 			_id:e._id,
-// 			user_name: e.user_name,
-// 		comment_text:e.comment_text,
-// 			up_vote:e.up_vote,
-// 			down_vote:e.down_vote,
-// 			replys:[]
-// 		})
-		
-// 	}
-// 	else{
-// 	 return res.status(404).send({ error: 'post not found' });
-// 	}
-// })
-// // console.log(commentDetails);
-
-
-// const reply = await Reply.find()
-// 	//  console.log(comment);
-//    const replyDetails= reply.map((e)=>{
-// 	if(e.user_id == req.body.user_id && e.comment_id == req.body.comment_id)
-// 	{
-
-// 		return({
-// 			_id:e._id,
-			
-// 		reply_text:e.reply_text,
-			
-// 			up_vote:e.up_vote,
-// 			down_vote:e.down_vote,
-			
-// 		})
-		
-// 	}
-// 	else{
-// 	 return res.status(404).send({ error: 'post not found' });
-// 	}
-// })
-// // console.log(replyDetails);
-
-
-
-// commentDetails.map(e =>{
-// 	if(e.user_id == req.body.user_id && e.comment_id == req.body.comment_id )
-// 	console.log("reply push");
-// 	return e.replys.push(replyDetails)
-//  })
- 
-
-//  postDetails.map(e =>{
-// 	if(e.user_id == req.body.user_id && e.post_id == req.body.post_id )
-// 	console.log("comment push");
-// 	return e.comments.push(commentDetails)
-//  })
-
-
-
-
-  userDetails.map(e =>{
-	//   console.log(e);
-		
-	// 		console.log(e._id);
-		 return	e.post.push(postDetails);
-		
-		
+    const userPost = userDetails.map((e)=>{
+		//  console.log(e);
+		 e.posts.push(postDetails)
 	 })
-
-
-
+//  console.log(userPost);
 			 
 		res.status(200).send(userDetails).catch((e)=>console.log(e))
 		
 		} catch (err) {
-			res.status(500).send();
+			res.status(500).send({error:err.message});
 		}
 	});
 
 
 
 
-// // 2.update a user
-// router.patch('/updateUser/:id', async (req, res) => {
-// 	const updates = Object.keys(req.body);
-//     console.log(updates);
-// 	const allowedUpdates = ['first_name','last_name','password'];
-// 	const isValidOperation = updates.every((update) => {
-// 		return allowedUpdates.includes(update);
-// 	});
+// 2.update a user
+router.patch('/updateUser/:id', async (req, res) => {
+	const updates = Object.keys(req.body);
+    console.log(updates);
+	const allowedUpdates = ['user_name','age','phone_number','password','profile_picture'];
+	const isValidOperation = updates.every((update) => {
+		return allowedUpdates.includes(update);
+	});
 
-// 	if (!isValidOperation) {
-// 		return res.status(400).send({ error: 'Invalid Operation' });
-// 	}
+	if (!isValidOperation) {
+		return res.status(400).send({ error: 'Invalid Operation' });
+	}
 
-// 	try {
-// 		const user = await User.findById(req.params.id)
-//         console.log(user);
-// 		if (!user) {
+	try {
+		const user = await User.findById(req.params.id)
+        console.log(user);
+		if (!user) {
            
-// 			return res.status(404).send({ error: 'User not found' });
-// 		}
-// 		updates.forEach((update) => {
-// 			user[update] = req.body[update];
-// 		});
-// 		await user.save();
-// 		res.send(user);
-// 	} catch (error) {
-// 		res.status(500).send({ error: 'Internal server error'});
-// 	}
-// });
-// // 3.delete a user
-// router.delete('/deleteUser/:id', async (req, res) => {
+			return res.status(404).send({ error: 'User not found' });
+		}
+		updates.forEach((update) => {
+			user[update] = req.body[update];
+		});
+		await user.save();
+		res.send(user);
+	} catch (error) {
+		res.status(500).send({ error: 'Internal server error'});
+	}
+});
+// 3.delete a user
+router.delete('/deleteUser', async (req, res) => {
     
-// 	try {
-// 		const user = await User.findByIdAndDelete(req.params.id);
-// 		if (!user) {
-// 			return res.status(404).send({ error: 'User not found' });
-// 		}
-// 		res.send(user);
-// 	} catch (error) {
-// 		res.status(500).send({ error: 'Internal server error' });
-// 	}
-// });
+	try {
+		const user = await User.findOneAndDelete({_id:req.body._id});
+		if (!user) {
+			return res.status(404).send({ error: 'User not found' });
+		}
+		res.send(user);
+	} catch (error) {
+		res.status(500).send({ error: 'Internal server error' });
+	}
+});
 module.exports = router;

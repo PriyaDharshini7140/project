@@ -9,10 +9,6 @@ const commentSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'posts'
     },
-    user_name:{
-        type:String,
-        required:true
-    },
     comment_text:{
         type:String,
         required:true

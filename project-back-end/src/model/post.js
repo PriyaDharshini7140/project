@@ -9,11 +9,6 @@ const postSchema = new Schema({
         type:Date,
         default:Date.now()
     },
-    user_name:{
-        type:String,
-        ref:"users",
-        required:true
-    },
     post_text:{
         type:String,
         required:true
