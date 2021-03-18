@@ -80,6 +80,50 @@ router.post('/getPost', async (req, res) => {
 	}
 });
 
+//update user post
+router.patch('/updatePost/:id', async (req, res) => {
+	const updates = Object.keys(req.body);
+	console.log(updates);
+	const allowedUpdates = ['post_text','post_url','category','up_vote','down_vote'];
+	const isValidOperation = updates.every((update) => {
+		return allowedUpdates.includes(update);
+	});
+
+	if (!isValidOperation) {
+		return res.status(400).send({ error: 'Invalid Operation' });
+	}
+
+	try {
+		const post = await Post.findById(req.params.id)
+		console.log(post);
+		if (!post) {
+		   
+			return res.status(404).send({ error: 'post not found' });
+		}
+		updates.forEach((update) => {
+			post[update] = req.body[update];
+		});
+		await post.save();
+		res.send(post);
+	} catch (error) {
+		res.status(500).send({ error: err.message});
+	}
+});
+// 3.delete a post
+router.delete('/deletePost', async (req, res) => {
+	
+	try {
+		const post = await Post.findOneAndDelete({_id:req.body._id});
+		if (!post) {
+			return res.status(404).send({ error: 'post not found' });
+		}
+		res.send(post);
+	} catch (error) {
+		res.status(500).send({ error:err.message});
+	}
+});
+
+
 
 
 module.exports = router;

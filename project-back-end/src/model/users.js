@@ -6,7 +6,7 @@ const userSchema = new Schema({
         required:true
     },
     age:{
-        type:Number,
+        type:Number,                                   
         required:true
     },
     phone_number:{
