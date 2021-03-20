@@ -1,4 +1,5 @@
 const express = require('express');
+const comment = require('../model/comment');
 
 const router = express.Router();
 
@@ -105,14 +106,36 @@ router.patch('/updateComment/:id', async (req, res) => {
 router.delete('/deleteComment', async (req, res) => {
     
 	try {
-		const comment = await Comment.findOneAndDelete({_id:req.body._id});
-		if (!comment) {
-			return res.status(404).send({ error: 'comment not found' });
-		}
-		res.send(comment);
-	} catch (error) {
-		res.status(500).send({ error: 'Internal server error' });
-	}
+		const comment = await Comment.findOne({_id:req.body._id},(err,c)=>{
+			if(err){
+				console.log(err);
+			}
+			else{
+			  Reply.find({comment_id:req.body.comment_id},(err,r)=>{
+				  if(err){
+					  console.log(err);
+				  }
+				  else{
+					//   console.log(r);
+					  r.map((e)=>{
+						//   console.log(e);
+						  if(c._id.toString() === e.comment_id.toString()){
+							 return e.remove()
+						  }
+					  })
+				  }
+			  })
+			  
+			}
+	  });
+	  if (!comment) {
+		  return res.status(404).send({ error: 'comment not found' });
+	  }
+	  comment.remove()
+	  res.send(comment);
+  } catch (error) {
+	  res.status(500).send({ error:err.message});
+  }
 });
 
 module.exports = router;

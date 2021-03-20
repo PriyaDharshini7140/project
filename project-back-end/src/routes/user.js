@@ -165,7 +165,7 @@ router.post('/newFeed', async (req, res) => {
 			});
 			await user.save();
 			res.send(user);
-		} catch (error) {
+		} catch (err) {
 			res.status(500).send({ error: err.message});
 		}
 	});
@@ -173,13 +173,68 @@ router.post('/newFeed', async (req, res) => {
 	router.delete('/deleteUser', async (req, res) => {
 		
 		try {
-			const user = await User.findOneAndDelete({_id:req.body._id});
-			if (!user) {
-				return res.status(404).send({ error: 'user not found' });
-			}
-			res.send(user);
-		} catch (error) {
-			res.status(500).send({ error:err.message});
+			const user = await User.findOne({_id:req.body._id},(err,u)=>{
+				if(err){
+					console.log(err);
+				}
+				else{
+                    
+					Post.find({user_id:req.body.user_id},(err,p)=>{
+						if(err){
+							console.log(err);
+						}
+						else{
+						  Comment.find({user_id:req.body.user_id},(err,c)=>{
+							  if(err){
+								  console.log(err);
+							  }
+							  else{
+								  Reply.find({},(err,r)=>{
+									  if(err){
+										  console.log(err);
+									  }
+									  else{
+										  r.map((rep)=>{
+											 
+											  if(u._id.toString() === rep.user_id.toString()){
+											     return rep.remove()
+											//   console.log(rep);
+											  }
+										  })
+		  
+									  }
+								  })
+								  c.map((com)=>{
+									  // console.log(e);
+									  if(u._id.toString() === com.user_id.toString()){
+									     return com.remove()
+									//   console.log(com);
+									  }
+								  })
+							  }
+							  p.map((pos)=>{
+								  // console.log(e);
+								  if(u._id.toString() === pos.user_id.toString()){
+								     return pos.remove()
+								//   console.log(pos);
+								  }
+							  })
+						  })
+		  
+						  
+						}
+				  });
+				}
+			})
+			
+			
+		if (!user) {
+			return res.status(404).send({ error: 'user not found' });
+		}
+		user.remove()
+		res.send(user);
+		} catch (err) {
+			res.status(500).send({error:err.message});
 		}
 	});
 

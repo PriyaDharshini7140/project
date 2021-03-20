@@ -5,6 +5,8 @@ const router = express.Router();
 const User = require('../model/users');
 
 const Post = require('../model/post');
+const e = require('express');
+const { remove } = require('../model/post');
 
 
 
@@ -113,10 +115,49 @@ router.patch('/updatePost/:id', async (req, res) => {
 router.delete('/deletePost', async (req, res) => {
 	
 	try {
-		const post = await Post.findOneAndDelete({_id:req.body._id});
+		const post = await Post.findOne({_id:req.body._id},(err,p)=>{
+              if(err){
+				  console.log(err);
+			  }
+			  else{
+				Comment.find({post_id:req.body.post_id},(err,c)=>{
+					if(err){
+						console.log(err);
+					}
+					else{
+						Reply.find({},(err,r)=>{
+							if(err){
+								console.log(err);
+							}
+							else{
+                                c.map((comments)=>{
+									// console.log(comments);
+ 								r.map((replys)=>{
+										if(comments._id.toString() === replys.comment_id.toString())
+										{
+                                            return replys.remove()
+											
+										}
+									})
+								})
+
+							}
+						})
+						c.map((e)=>{
+							// console.log(e);
+							if(p._id.toString() === e.post_id.toString()){
+							   return e.remove()
+							}
+						})
+					}
+				})
+				
+			  }
+		});
 		if (!post) {
 			return res.status(404).send({ error: 'post not found' });
 		}
+		post.remove()
 		res.send(post);
 	} catch (error) {
 		res.status(500).send({ error:err.message});
