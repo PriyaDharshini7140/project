@@ -1,10 +1,10 @@
 const express = require('express');
-const comment = require('../model/comment');
+
 
 const router = express.Router();
 
 
-const Comment = require('../model/comment')
+const Comment = require('../../model/UserModel/comment')
 
 
 //1. add a new Comment

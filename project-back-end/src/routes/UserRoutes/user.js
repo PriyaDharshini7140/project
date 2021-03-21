@@ -4,7 +4,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const User = require('../model/users');
+const User = require('../../model/UserModel/users');
 
 
 //1. add a new user

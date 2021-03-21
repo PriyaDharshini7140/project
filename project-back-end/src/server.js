@@ -4,10 +4,13 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser")
 
-const user = require('./routes/user');
-const post = require("./routes/post")
-const comment = require('./routes/comment')
-const reply = require('./routes/reply')
+const user = require('./routes/UserRoutes/user');
+const post = require("./routes/UserRoutes/post")
+const comment = require('./routes/UserRoutes/comment')
+const reply = require('./routes/UserRoutes/reply')
+
+const admin = require("./routes/AdminRoutes/admin")
+const verification = require("./routes/AdminRoutes/verification")
 const cors = require("cors");
 const port = 4000;
 
@@ -30,6 +33,8 @@ mongoose.connect(process.env.DB,{
  app.use('/post',post);
  app.use('/comment',comment);
  app.use('/reply',reply);
+ app.use('/admin',admin)
+ app.use('/verification',verification)
 app.listen(port,(err)=>{
 if(err){
     console.log( {err : err});

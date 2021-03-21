@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const Reply = require("../model/reply")
+const Reply = require("../../model/UserModel/reply")
 //1. add a new reply
 router.post('/addReply', async (req, res) => {
 	const newReply = new Reply(req.body);

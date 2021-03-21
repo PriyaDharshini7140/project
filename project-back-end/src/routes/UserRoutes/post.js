@@ -2,11 +2,9 @@ const express = require('express');
 
 const router = express.Router();
 
-const User = require('../model/users');
 
-const Post = require('../model/post');
-const e = require('express');
-const { remove } = require('../model/post');
+
+const Post = require('../../model/UserModel/post');
 
 
 
