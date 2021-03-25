@@ -5,18 +5,68 @@ const express = require('express');
 const router = express.Router();
 
 const User = require('../../model/UserModel/users');
-
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
 
 //1. add a new user
 router.post('/addUser', async (req, res) => {
-	const newUser = new User(req.body);
+	bcrypt.hash(req.body.password,10,(err,hashedPass)=>{
+		if (err) {
+			require.json({error:err})
+		}
+		
+      
+		const newUser = new User({
+			user_name:req.body.user_name,
+			age:req.body.age,
+			phone_number:req.body.phone_number,
+			email_id:req.body.email_id,
+			gender:req.body.gender,
+			password:hashedPass,
+			profile_picture:req.body.profile_picture
+	})
 	try {
-		await newUser.save()
-		.then((e)=>res.status(201).send({data:e}))
-		.catch((e)=>console.log(e));
-		} catch (err) {
-		res.status(500).send();
-	}
+			 newUser.save()
+			.then((e)=>res.status(201).send({data:e}))
+			.catch((e)=>console.log(e));
+			} catch (err) {
+			res.status(500).send({error:err.message});
+		}
+
+	})
+	
+});
+
+router.post('/login',(req,res)=>{
+	var email=req.body.email
+    var password=req.body.password
+
+    User.findOne({email_id:email})
+    .then(user=>{
+        if(user){
+            bcrypt.compare(password,user.password,function(err,result){
+                if(err){
+                    res.json({
+                        error:err
+                    })
+                }
+                if(result){
+                    let token =jwt.sign({user_name:user.user_name},'verySecret',{expiresIn:'1h'})
+                    res.send("login successful");
+                    token
+                }else{
+                    res.json({
+                        message:'password does not match'
+                    })
+                }
+            })
+
+        }else{
+            res.json({
+                message:"no user found"
+            })
+        }
+    })
 });
 
 // 2. to view all user(newFeeds)
