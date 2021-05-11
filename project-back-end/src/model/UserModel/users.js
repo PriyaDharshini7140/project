@@ -7,11 +7,11 @@ const userSchema = new Schema({
     },
     age:{
         type:Number,                                   
-        required:true
+        required:false
     },
     phone_number:{
         type:String,
-        required:true
+        required:false
     },
     email_id:{
         type:String,
@@ -19,17 +19,25 @@ const userSchema = new Schema({
     },
     gender:{
         type:String,
-        required:true
+        required:false
     },
     password:{
         type:String,
         required:true,
         min:6,
-        max:10
+        max:15
     },
+    role:{
+        type:String,
+        default:"user"
+      },
     profile_picture:{
         type:String,
-        required:true
+        required:false
+    },
+    description:{
+        type:String,
+        required:false
     },
      created_at:{
         type:Date,

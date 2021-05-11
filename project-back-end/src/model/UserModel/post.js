@@ -15,19 +15,17 @@ const postSchema = new Schema({
     },
     post_url:{
         type:String,
-        required:true
+        required:false
     },
     category:{
         type:String,
-        required:true
+        required:false
     },
-    up_vote:{
-        type:String,
-        required:true
-    },
-    down_vote:{
-        type:String,
-        required:true
-    },
+    up_vote:[{type: Schema.Types.ObjectId,
+        ref: 'users'
+    }],
+    down_vote:[{type: Schema.Types.ObjectId,
+        ref: 'users'
+    }],
     });
 module.exports = Post = mongoose.model('posts',postSchema);

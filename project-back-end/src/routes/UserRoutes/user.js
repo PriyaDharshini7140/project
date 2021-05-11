@@ -6,28 +6,36 @@ const router = express.Router();
 
 const User = require('../../model/UserModel/users');
 const bcrypt = require('bcryptjs')
-const jwt = require('jsonwebtoken')
-
+const jwt = require('jsonwebtoken');
+const { CreateToken } = require('../../middleware/CreateToken');
+const { checkPermission } = require('../../middleware/CheckPermission');
 //1. add a new user
 router.post('/addUser', async (req, res) => {
+	const email =await  User.find({})
+    email.map((e)=>{
+		if(e.email_id === req.body.email_id){
+			res.status(200).send({message:"email_id already exists"});
+		}
+		else if(e.user_name === req.body.user_name){
+			res.status(200).send({message:"user name already exists"});
+		}
+	})
+
 	bcrypt.hash(req.body.password,10,(err,hashedPass)=>{
 		if (err) {
-			require.json({error:err})
+			res.json({error:err})
 		}
-		
-      
-		const newUser = new User({
+	
+const newUser = new User({
 			user_name:req.body.user_name,
-			age:req.body.age,
-			phone_number:req.body.phone_number,
 			email_id:req.body.email_id,
-			gender:req.body.gender,
 			password:hashedPass,
-			profile_picture:req.body.profile_picture
+			role:req.body.role
 	})
 	try {
+		    //   console.log(newUser);
 			 newUser.save()
-			.then((e)=>res.status(201).send({data:e}))
+			.then((e)=>res.status(201).send({data:e,message:"Registered successfully  please login in "}))
 			.catch((e)=>console.log(e));
 			} catch (err) {
 			res.status(500).send({error:err.message});
@@ -38,9 +46,9 @@ router.post('/addUser', async (req, res) => {
 });
 
 router.post('/login',(req,res)=>{
-	var email=req.body.email
+	var email=req.body.email_id
     var password=req.body.password
-
+    console.log(email,password);
     User.findOne({email_id:email})
     .then(user=>{
         if(user){
@@ -51,9 +59,17 @@ router.post('/login',(req,res)=>{
                     })
                 }
                 if(result){
-                    let token =jwt.sign({user_name:user.user_name},'verySecret',{expiresIn:'1h'})
-                    res.send("login successful");
-                    token
+                    let token = CreateToken(user);
+					console.log(token);
+                    res.send({
+			message:"logged in successfully",
+			_id:user._id,
+			user_name:user.user_name,
+			profile_picture:user.profile_picture,
+			role:user.role,
+			token
+					});
+                    
                 }else{
                     res.json({
                         message:'password does not match'
@@ -68,6 +84,24 @@ router.post('/login',(req,res)=>{
         }
     })
 });
+
+
+router.post('/particularUser',checkPermission(), async (req, res) => {
+	try {
+	  const user = await User.findOne({_id:req.user_id});
+	if(!user){
+		res.status(404).send({error:"user not found"});
+	}
+
+		res.status(200).send(user).catch((e)=>console.log(e))
+	 }
+	
+		
+		 catch (err) {
+			res.status(500).send({error:err.message});
+		}
+});
+
 
 // 2. to view all user(newFeeds)
 router.post('/newFeed', async (req, res) => {
@@ -132,6 +166,7 @@ router.post('/newFeed', async (req, res) => {
 
 //3 to view a user's profile
 	router.post('/UserProfile', async (req, res) => {
+		console.log(req.body);
 		try {
 
 			const post= await Post.find()
@@ -192,9 +227,10 @@ router.post('/newFeed', async (req, res) => {
 
 //update user profile
 	router.patch('/updateUser/:id', async (req, res) => {
+	
 		const updates = Object.keys(req.body);
 		console.log(updates);
-		const allowedUpdates = ['user_name','age','phone_number','password','profile_picture'];
+		const allowedUpdates = ['age','phone_number','profile_picture','description','gender'];
 		const isValidOperation = updates.every((update) => {
 			return allowedUpdates.includes(update);
 		});
@@ -218,23 +254,24 @@ router.post('/newFeed', async (req, res) => {
 		} catch (err) {
 			res.status(500).send({ error: err.message});
 		}
+
 	});
 	// 3.delete a user 
-	router.delete('/deleteUser', async (req, res) => {
+	router.delete('/deleteUser/:id', async (req, res) => {
 		
 		try {
-			const user = await User.findOne({_id:req.body._id},(err,u)=>{
+			const user = await User.findById(req.params.id,(err,u)=>{
 				if(err){
 					console.log(err);
 				}
 				else{
                     
-					Post.find({user_id:req.body.user_id},(err,p)=>{
+					Post.find({},(err,p)=>{
 						if(err){
 							console.log(err);
 						}
 						else{
-						  Comment.find({user_id:req.body.user_id},(err,c)=>{
+						  Comment.find({},(err,c)=>{
 							  if(err){
 								  console.log(err);
 							  }

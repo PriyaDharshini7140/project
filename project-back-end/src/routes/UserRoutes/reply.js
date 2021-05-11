@@ -14,6 +14,54 @@ router.post('/addReply', async (req, res) => {
 		res.status(500).send();
 	}
 });
+
+router.post('/like',async(req,res)=>{
+	const post = await Reply.findOne({ _id:req.body._id});
+	const user = req.body.user_id
+	const up = post.up_vote.includes(user)
+	const down = post.down_vote.includes(user)
+console.log(up);
+if (up === true) {
+	post.up_vote.remove(user)
+}
+else if(down === true){
+	post.down_vote.remove(user)
+	post.up_vote.push(user)
+}
+else{
+	post.up_vote.push(user)
+}
+try {
+	await post.save();
+	res.status(201).send(post);
+} catch (err) {
+	res.status(500).send({error:err.message});
+}
+})
+
+router.post('/dislike',async(req,res)=>{
+const post = await Reply.findOne({ _id:req.body._id});
+	const user = req.body.user_id
+	const up = post.up_vote.includes(user)
+	const down = post.down_vote.includes(user)
+console.log(up);
+if (up === true) {
+	post.up_vote.remove(user)
+	post.down_vote.push(user)
+}
+else if(down === true){
+	post.down_vote.remove(user)
+}
+else{
+	post.down_vote.push(user)
+}
+try {
+	await post.save();
+	res.status(201).send(post);
+} catch (err) {
+	res.status(500).send();
+}
+})
 // 2.update a reply
 router.patch('/updateReply/:id', async (req, res) => {
 	const updates = Object.keys(req.body);
@@ -44,10 +92,11 @@ router.patch('/updateReply/:id', async (req, res) => {
 	}
 });
 // 3.delete a reply
-router.delete('/deleteReply', async (req, res) => {
-    
+router.delete('/deleteReply/:id', async (req, res) => {
+    // console.log(req.body._id);
+	console.log(req.params.id);
 	try {
-		const reply = await Reply.findOneAndDelete({_id:req.body._id});
+		const reply = await Reply.findByIdAndDelete(req.params.id);
 		if (!reply) {
 			return res.status(404).send({ error: 'reply not found' });
 		}

@@ -18,15 +18,64 @@ router.post('/addComment', async (req, res) => {
 		res.status(500).send();
 	}
 });
+router.post('/like',async(req,res)=>{
+	const post = await Comment.findOne({ _id:req.body._id});
+	const user = req.body.user_id
+	const up = post.up_vote.includes(user)
+	const down = post.down_vote.includes(user)
+console.log(up);
+if (up === true) {
+	post.up_vote.remove(user)
+}
+else if(down === true){
+	post.down_vote.remove(user)
+	post.up_vote.push(user)
+}
+else{
+	post.up_vote.push(user)
+}
+try {
+	await post.save();
+	res.status(201).send(post);
+} catch (err) {
+	res.status(500).send({error:err.message});
+}
+})
 
+router.post('/dislike',async(req,res)=>{
+const post = await Comment.findOne({ _id:req.body._id});
+	const user = req.body.user_id
+	const up = post.up_vote.includes(user)
+	const down = post.down_vote.includes(user)
+console.log(up);
+if (up === true) {
+	post.up_vote.remove(user)
+	post.down_vote.push(user)
+}
+else if(down === true){
+	post.down_vote.remove(user)
+}
+else{
+	post.down_vote.push(user)
+}
+try {
+	await post.save();
+	res.status(201).send(post);
+} catch (err) {
+	res.status(500).send();
+}
+})
 router.post('/getComment', async (req, res) => {
 	try {
-
-		const comment= await Comment.find({post_id:req.body.post_id})
 		
+		const comment= await Comment.find({post_id:req.body.post_id})
+
+       
 		const commentDetails= comment.map((e)=>{
+			
 			 return{
 				_id:e._id,
+				user_id:e.user_id,
 				post_id:e.post_id,
 				comment_text:e.comment_text,
 				up_vote:e.up_vote,
@@ -35,14 +84,15 @@ router.post('/getComment', async (req, res) => {
 				   }
 	
 		   })
-   console.log(commentDetails);
+//    console.log(commentDetails);
 
 		   const reply= await Reply.find()
 		  
 		   const replyDetails= reply.map((e)=>{
 				return{
 						  _id:e._id,
-						  comment_id:e.comment_id,
+						  user_id:e.user_id,
+						 comment_id:e.comment_id,
 						  reply_text:e.reply_text,
 						  up_vote:e.up_vote,
 						  down_vote:e.down_vote,
@@ -51,7 +101,7 @@ router.post('/getComment', async (req, res) => {
 			  })
 
 
-    console.log(replyDetails);
+    // console.log(replyDetails);
 
    
 	commentDetails.map((c)=>{
@@ -103,15 +153,16 @@ router.patch('/updateComment/:id', async (req, res) => {
 	}
 });
 // 3.delete a comment
-router.delete('/deleteComment', async (req, res) => {
-    
+router.delete('/deleteComment/:id', async (req, res) => {
+	console.log(req.params.id);
+    // console.log("deletecomment",req);
 	try {
-		const comment = await Comment.findOne({_id:req.body._id},(err,c)=>{
+		const comment = await Comment.findById(req.params.id,(err,c)=>{
 			if(err){
 				console.log(err);
 			}
 			else{
-			  Reply.find({comment_id:req.body.comment_id},(err,r)=>{
+			  Reply.find({},(err,r)=>{
 				  if(err){
 					  console.log(err);
 				  }
