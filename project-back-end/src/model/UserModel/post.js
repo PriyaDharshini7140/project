@@ -5,10 +5,6 @@ const postSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'users'
 },
-     created_at:{
-        type:Date,
-        default:Date.now()
-    },
     post_text:{
         type:String,
         required:true
@@ -27,5 +23,5 @@ const postSchema = new Schema({
     down_vote:[{type: Schema.Types.ObjectId,
         ref: 'users'
     }],
-    });
+    }, { timestamps: true });
 module.exports = Post = mongoose.model('posts',postSchema);

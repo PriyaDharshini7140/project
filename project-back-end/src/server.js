@@ -9,8 +9,8 @@ const post = require("./routes/UserRoutes/post")
 const comment = require('./routes/UserRoutes/comment')
 const reply = require('./routes/UserRoutes/reply')
 
-const admin = require("./routes/AdminRoutes/admin")
-const verification = require("./routes/AdminRoutes/verification")
+
+const verification = require("./routes/UserRoutes/verification")
 const cors = require("cors");
 const port = 4000;
 
@@ -33,7 +33,7 @@ mongoose.connect(process.env.DB,{
  app.use('/post',post);
  app.use('/comment',comment);
  app.use('/reply',reply);
- app.use('/admin',admin)
+ 
  app.use('/verification',verification)
 app.listen(port,(err)=>{
 if(err){

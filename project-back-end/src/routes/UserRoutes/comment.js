@@ -2,23 +2,23 @@ const express = require('express');
 
 
 const router = express.Router();
-
+const { checkPermission } = require('../../middleware/CheckPermission');
 
 const Comment = require('../../model/UserModel/comment')
 
 
 //1. add a new Comment
-router.post('/addComment', async (req, res) => {
+router.post('/addComment',checkPermission(), async (req, res) => {
 	const newComment = new Comment(req.body);
 	try {
 		await newComment.save()
-		.then((e)=>res.status(201).send({data:e}))
+		.then((e)=>res.status(201).send(e))
 		.catch((e)=> console.log(e))
 	} catch (err) {
 		res.status(500).send();
 	}
 });
-router.post('/like',async(req,res)=>{
+router.post('/like',checkPermission(),async(req,res)=>{
 	const post = await Comment.findOne({ _id:req.body._id});
 	const user = req.body.user_id
 	const up = post.up_vote.includes(user)
@@ -42,7 +42,7 @@ try {
 }
 })
 
-router.post('/dislike',async(req,res)=>{
+router.post('/dislike',checkPermission(),async(req,res)=>{
 const post = await Comment.findOne({ _id:req.body._id});
 	const user = req.body.user_id
 	const up = post.up_vote.includes(user)
@@ -65,95 +65,38 @@ try {
 	res.status(500).send();
 }
 })
-router.post('/getComment', async (req, res) => {
+router.post('/getComment',checkPermission(),async (req, res) => {
 	try {
 		
-		const comment= await Comment.find({post_id:req.body.post_id})
-
-       
-		const commentDetails= comment.map((e)=>{
-			
-			 return{
-				_id:e._id,
-				user_id:e.user_id,
-				post_id:e.post_id,
-				comment_text:e.comment_text,
-				up_vote:e.up_vote,
-				down_vote:e.down_vote,
-				replys:[]
-				   }
-	
-		   })
-//    console.log(commentDetails);
-
-		   const reply= await Reply.find()
-		  
-		   const replyDetails= reply.map((e)=>{
-				return{
-						  _id:e._id,
-						  user_id:e.user_id,
-						 comment_id:e.comment_id,
-						  reply_text:e.reply_text,
-						  up_vote:e.up_vote,
-						  down_vote:e.down_vote,
-					  }
-	   
-			  })
-
-
-    // console.log(replyDetails);
-
-   
-	commentDetails.map((c)=>{
-	
-	  replyDetails.map((r)=>{
 		
-		   if(c._id.toString() === r.comment_id.toString()){
-			
-				c.replys.push(r)
-		   }
-	   })
-   })
-
-
-			 
-	res.status(200).send(commentDetails).catch((e)=>console.log(e))
-	
+           const comment = await Comment.aggregate([
+			{
+			$lookup:{
+             from:"replys",
+			 localField:'_id',
+			 foreignField:'comment_id',
+			 as:'replys'
+			}
+		},{
+			$lookup:{
+             from:"users",
+			 localField:'user_id',
+			 foreignField:'_id',
+			 as:'user'
+			}
+		},{
+			$unwind:"$user"
+		}]).sort({createdAt: 'desc'})
+		res.status(200).send(comment).catch((e)=>console.log(e))
+		
 	} catch (err) {
 		res.status(500).send({error:err.message});
 	}
 });
 
-router.patch('/updateComment/:id', async (req, res) => {
-	const updates = Object.keys(req.body);
-    console.log(updates);
-	const allowedUpdates = ['up_vote','down_vote'];
-	const isValidOperation = updates.every((update) => {
-		return allowedUpdates.includes(update);
-	});
 
-	if (!isValidOperation) {
-		return res.status(400).send({ error: 'Invalid Operation' });
-	}
-
-	try {
-		const comment = await Comment.findById(req.params.id)
-        console.log(comment);
-		if (!comment) {
-           
-			return res.status(404).send({ error: 'comment not found' });
-		}
-		updates.forEach((update) => {
-			comment[update] = req.body[update];
-		});
-		await comment.save();
-		res.send(comment);
-	} catch (error) {
-		res.status(500).send({ error: 'Internal server error'});
-	}
-});
 // 3.delete a comment
-router.delete('/deleteComment/:id', async (req, res) => {
+router.delete('/deleteComment/:id',checkPermission(), async (req, res) => {
 	console.log(req.params.id);
     // console.log("deletecomment",req);
 	try {

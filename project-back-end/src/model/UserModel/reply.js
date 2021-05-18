@@ -19,5 +19,5 @@ const replySchema = new Schema({
     down_vote:[{type: Schema.Types.ObjectId,
         ref: 'users'
     }],
-});
+}, { timestamps: true });
 module.exports = Reply = mongoose.model('replys',replySchema);

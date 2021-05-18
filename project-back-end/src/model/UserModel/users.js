@@ -33,17 +33,14 @@ const userSchema = new Schema({
       },
     profile_picture:{
         type:String,
-        required:false
+        required:false,
+        default:""
     },
     description:{
         type:String,
         required:false
-    },
-     created_at:{
-        type:Date,
-        default:Date.now()
     }
-});
+}, { timestamps: true } );
 
 
 

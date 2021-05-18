@@ -20,5 +20,5 @@ const commentSchema = new Schema({
     down_vote:[{type: Schema.Types.ObjectId,
         ref: 'users'
     }],
-  });
+  }, { timestamps: true });
 module.exports = Comment = mongoose.model('comments',commentSchema);
