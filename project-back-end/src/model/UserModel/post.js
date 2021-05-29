@@ -9,16 +9,17 @@ const postSchema = new Schema({
         type:String,
         required:true
     },
-    post_url:{
+    post_url:[{
         type:String,
         required:false
-    },
+    }],
     category:{
-        type:String,
-        required:false
+        type:Array,
+        required:true
     },
     up_vote:[{type: Schema.Types.ObjectId,
-        ref: 'users'
+        ref: 'users',
+       
     }],
     down_vote:[{type: Schema.Types.ObjectId,
         ref: 'users'

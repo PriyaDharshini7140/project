@@ -3,12 +3,11 @@ const Schema = mongoose.Schema;
 const userSchema = new Schema({
     user_name:{
         type:String,
-        required:true
+        required:true,
+        min:4,
+        max:20
     },
-    age:{
-        type:Number,                                   
-        required:false
-    },
+    
     phone_number:{
         type:String,
         required:false
@@ -17,14 +16,18 @@ const userSchema = new Schema({
         type:String,
         required:true
     },
-    gender:{
+    work:{
+        type:String,
+        required:false
+    },
+    education:{
         type:String,
         required:false
     },
     password:{
         type:String,
         required:true,
-        min:6,
+        min:8,
         max:15
     },
     role:{
@@ -38,7 +41,9 @@ const userSchema = new Schema({
     },
     description:{
         type:String,
-        required:false
+        required:false,
+       
+       
     }
 }, { timestamps: true } );
 

@@ -10,6 +10,7 @@ const Post = require('../../model/UserModel/post');
 //1. add a new post
 router.post('/addPost',checkPermission(), async (req, res) => {
 	const newPost = new Post(req.body);
+	console.log(newPost);
 	try {
 		console.log(newPost);
 		await newPost.save()
@@ -162,7 +163,18 @@ router.delete('/deletePost/:id',checkPermission(), async (req, res) => {
 	}
 });
 
-
+// router.post('/reportPost',checkPermission(), async (req, res) => {
+// 	const report = await Post.findOne({_id:req.body._id})
+// 	console.log(newPost);
+// 	try {
+// 		console.log(newPost);
+// 		await newPost.save()
+// 		.then((e)=>res.status(201).send(e))
+// 		.catch((e)=> console.log(e))
+// 	} catch (err) {
+// 		res.status(500).send();
+// 	}
+// });
 
 
 module.exports = router;

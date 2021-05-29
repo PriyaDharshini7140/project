@@ -9,41 +9,43 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken');
 const { CreateToken } = require('../../middleware/CreateToken');
 const { checkPermission } = require('../../middleware/CheckPermission');
+const e = require('express');
 
 
 //1. add a new user
 router.post('/addUser', async (req, res) => {
-	const email =await  User.find({})
-    email.map((e)=>{
-		if(e.email_id === req.body.email_id){
-			res.status(200).send({message:"email_id already exists"});
-		}
-		else if(e.user_name === req.body.user_name){
-			res.status(200).send({message:"user name already exists"});
-		}
-	})
-
-	bcrypt.hash(req.body.password,10,(err,hashedPass)=>{
-		if (err) {
-			res.json({error:err})
+	const email =await  User.findOne({email_id:req.body.email_id})
+console.log(email);
+		 if (email === null ) {
+			bcrypt.hash(req.body.password,10,(err,hashedPass)=>{
+				if (err) {
+					res.json({error:err})
+				}
+			
+		const newUser = new User({
+					user_name:req.body.user_name,
+					email_id:req.body.email_id,
+					password:hashedPass,
+					role:req.body.role
+			})
+			try {
+					//   console.log(newUser);
+					 newUser.save()
+					.then((e)=>res.status(201).send({data:e,message:"Registered successfully  please login in "}))
+					.catch((e)=>console.log(e));
+					} catch (err) {
+					res.status(500).send({error:err.message});
+				}
+		
+			})
+		 }
+		
+		else if(email.email_id === req.body.email_id || email.user_name === req.body.user_name){
+           res.send({message:"email or userName already exits"})
 		}
 	
-const newUser = new User({
-			user_name:req.body.user_name,
-			email_id:req.body.email_id,
-			password:hashedPass,
-			role:req.body.role
-	})
-	try {
-		    //   console.log(newUser);
-			 newUser.save()
-			.then((e)=>res.status(201).send({data:e,message:"Registered successfully  please login in "}))
-			.catch((e)=>console.log(e));
-			} catch (err) {
-			res.status(500).send({error:err.message});
-		}
 
-	})
+	
 	
 });
 
@@ -142,7 +144,7 @@ router.post('/newFeed',checkPermission(), async (req, res) => {
 	
 		const updates = Object.keys(req.body);
 		console.log(updates);
-		const allowedUpdates = ['age','phone_number','profile_picture','description','gender'];
+		const allowedUpdates = ['user_name','phone_number','profile_picture','description','work','education'];
 		const isValidOperation = updates.every((update) => {
 			return allowedUpdates.includes(update);
 		});
@@ -169,10 +171,10 @@ router.post('/newFeed',checkPermission(), async (req, res) => {
 
 	});
 	// 3.delete a user 
-	router.delete('/deleteUser/:id',checkPermission(), async (req, res) => {
+	router.delete('/deleteUser/',checkPermission(), async (req, res) => {
 		
 		try {
-			const user = await User.findById(req.params.id,(err,u)=>{
+			const user = await User.findById(req.user_id,(err,u)=>{
 				if(err){
 					console.log(err);
 				}
@@ -225,11 +227,12 @@ router.post('/newFeed',checkPermission(), async (req, res) => {
 				  });
 				}
 			})
-			
+			const s = await Verification.findOneAndRemove({user_id:req.user_id});
 			
 		if (!user) {
 			return res.status(404).send({ error: 'user not found' });
 		}
+		s.remove()
 		user.remove()
 		res.send(user);
 		} catch (err) {
@@ -238,7 +241,35 @@ router.post('/newFeed',checkPermission(), async (req, res) => {
 	});
 
 
-
+	router.post('/forgetPassword', async (req, res) => {
+		const user =await  User.findOne({email_id:req.body.email_id})
+		console.log(user);
+			if(user.email_id === req.body.email_id){
+				bcrypt.hash(req.body.password,10,(err,hashedPass)=>{
+					if (err) {
+						res.json({error:err})
+					}
+				
+			
+					user.password = hashedPass
+						
+				
+				try {
+						//   console.log(newUser);
+						 user.save()
+						.then((e)=>res.status(201).send(e))
+						.catch((e)=>console.log(e));
+						} catch (err) {
+						res.status(500).send({error:err.message});
+					}
+				})
+			}
+			else{
+				res.status(200).send({message:"email_id doesn't exist"});
+			}
+		
+	
+});
 
 
 
