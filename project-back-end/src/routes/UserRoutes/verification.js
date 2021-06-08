@@ -1,7 +1,7 @@
 const express = require('express');
 
 var nodemailer = require('nodemailer');
-
+const {USER,PASSWORD} =require('../../configuration/Config')
 
 const router = express.Router();
 
@@ -29,29 +29,31 @@ router.post('/adminVerification',async(req,res)=>{
 	post.status = req.body.status
 try {
 	await post.save();
-	
-	var transporter = nodemailer.createTransport({
-  service: 'outlook',
-  auth: {
-    user: 'ideawrapper@outlook.com',
-    pass: 'Priya7140'
-  }
-});
-console.log(email);
-var mailOptions = {
-  from: 'ideawrapper@outlook.com',
-  to: `${email}`,
-  subject: 'Account verification',
-  text: `Hi ${name} your account has been ${post.status}! you can post your idea's`
-};
+	if(post.status === 'Verified'){
+		var transporter = nodemailer.createTransport({
+			service: 'outlook',
+			auth: {
+				user:`${USER}`,
+				pass: `${PASSWORD}`
+			}
+		  });
+		  console.log(email);
+		  var mailOptions = {
+			from: `${USER}`,
+			to: `${email}`,
+			subject: 'Account verification',
+			text: `Hi ${name} your account has been ${post.status}! you can post your idea's`
+		  };
+		  
+		  transporter.sendMail(mailOptions, function(error, info){
+			if (error) {
+			  console.log(error);
+			} else {
+			  console.log('Email sent: ' + info.response);
+			}
+		  });	
+	}
 
-transporter.sendMail(mailOptions, function(error, info){
-  if (error) {
-    console.log(error);
-  } else {
-    console.log('Email sent: ' + info.response);
-  }
-});
 } catch (err) {
 	res.status(500).send({error:err.message});
 }

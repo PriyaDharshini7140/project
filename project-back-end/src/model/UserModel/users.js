@@ -44,7 +44,9 @@ const userSchema = new Schema({
         required:false,
        
        
-    }
+    },
+    resetToken:String,
+    expireToken:Date,
 }, { timestamps: true } );
 
 

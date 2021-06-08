@@ -1,5 +1,5 @@
 const express = require('express');
-const { remove } = require('../../model/UserModel/post');
+
 
 const router = express.Router();
 const { checkPermission } = require('../../middleware/CheckPermission');
@@ -23,11 +23,11 @@ router.post('/addPost',checkPermission(), async (req, res) => {
 
 
 //update user post
-router.patch('/updatePost/:id/:pid',checkPermission(), async (req, res) => {
+router.patch('/updatePost/:id/:pid', async (req, res) => {
 	const user = await User.findById(req.params.id);
 	const updates = Object.keys(req.body);
 	console.log(updates);
-	const allowedUpdates = ['post_text','post_url','category'];
+	const allowedUpdates = ['idea_title','scope','post_text','post_url','category','link','enhancement','requirements'];
 	const isValidOperation = updates.every((update) => {
 		return allowedUpdates.includes(update);
 	});
@@ -152,29 +152,20 @@ router.delete('/deletePost/:id',checkPermission(), async (req, res) => {
 				
 			  }
 		});
+		
 		if (!post) {
 			return res.status(404).send({ error: 'post not found' });
 		}
 		post.remove()
-	
+		
 		res.send(post);
+
 	} catch (error) {
 		res.status(500).send({ error:err.message});
 	}
 });
 
-// router.post('/reportPost',checkPermission(), async (req, res) => {
-// 	const report = await Post.findOne({_id:req.body._id})
-// 	console.log(newPost);
-// 	try {
-// 		console.log(newPost);
-// 		await newPost.save()
-// 		.then((e)=>res.status(201).send(e))
-// 		.catch((e)=> console.log(e))
-// 	} catch (err) {
-// 		res.status(500).send();
-// 	}
-// });
+
 
 
 module.exports = router;
