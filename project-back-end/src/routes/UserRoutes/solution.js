@@ -42,7 +42,7 @@ router.post('/getMvp', async (req, res) => {
         }
     },{
         $unwind:"$user"
-    }]).sort({createdAt: 'desc'})
+    }]).sort({up_vote_count: 'desc'})
     
     
     res.status(200).send(post).catch((e)=>console.log(e))
@@ -192,67 +192,6 @@ router.delete('/deleteMvp/:id', async (req, res) => {
 		res.status(500).send({ error:err.message});
 	}
 });
-router.delete('/deleteMvpPost/:id', async (req, res) => {
-	// console.log("delete post",req.body._id);
-	try {
-		const post = await Solution.remove({post_id:req.params.id},(err,p)=>{
-			
-              if(err){
-				  console.log(err);
-			  }
-			  else{
-				MvpComment.remove({},(err,c)=>{
-					console.log("c",c);
-					if(err){
-						console.log(err);
-					}
-					else{
-						MvpReply.remove({},(err,r)=>{
-							if(err){
-								console.log(err);
-							}
-							else{
-                                c.map((comments)=>{
-									console.log("com",comments);
- 								r.map((replys)=>{
-                                     console.log("rep",replys.comment_id);
-										if(comments._id.toString() === replys.comment_id.toString())
-										{
-                                      return replys.remove()
-											
-										}
-									})
-								})
-
-							}
-						})
-
-                        
-                            c.map((e)=>{
-                                console.log("solution",e.solution_id);
-                                   if(p._id.toString() === e.solution_id.toString()){
-                                 return e.remove()
-                                   }
-                               })
-                      
-						
-					}
-				})
-				
-			  }
-		});
-		if (!post) {
-			return res.status(404).send({ error: 'post not found' });
-		}
-	
-		
-		res.send(post);
-
-	} catch (err) {
-		res.status(500).send({ error:err.message});
-	}
-});
-
 
 
 

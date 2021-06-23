@@ -191,6 +191,34 @@ router.post('/newFeed',checkPermission(), async (req, res) => {
 		}
 	});
 
+	router.post('/updatePassword',checkPermission(),async(req,res)=>{
+		const user =await  User.findOne({email_id:req.body.email_id})
+		console.log(user);
+			if(user.email_id === req.body.email_id){
+				bcrypt.hash(req.body.password,10,(err,hashedPass)=>{
+					if (err) {
+						res.json({error:err})
+					}
+				
+			
+					user.password = hashedPass
+						
+				
+				try {
+						//   console.log(newUser);
+						 user.save()
+						.then((e)=>res.status(201).send(e))
+						.catch((e)=>console.log(e));
+						} catch (err) {
+						res.status(500).send({error:err.message});
+					}
+				})
+			}
+			else{
+				res.status(200).send({message:"email_id doesn't exist"});
+			}
+	})
+
 //update user profile
 	router.patch('/updateUser/:id',checkPermission(), async (req, res) => {
 	
@@ -322,11 +350,11 @@ router.post('/newFeed',checkPermission(), async (req, res) => {
                      <h5>click in this <a href="http://localhost:3000/resetPassword/${token}">link</a> to reset password</h5>
                      `
                  })
-				
+				console.log("email",result);
                  res.json({message:"check your email"})
-             })
+             }).catch((e)=>console.log(e))
 
-         })
+         }).catch((e)=>console.log(e))
 		
 		
 		  

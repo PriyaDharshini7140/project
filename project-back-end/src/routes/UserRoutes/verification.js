@@ -11,14 +11,25 @@ const { checkPermission } = require('../../middleware/CheckPermission');
 
 
 router.post('/verification', async (req, res) => {
-	const verification = new Verification(req.body);
-	try {
-		await verification.save()
-		.then((e)=>res.status(201).send(e))
-		.catch((e)=>console.log(e));
-		} catch (err) {
-		res.status(500).send();
+	const verify = await Verification.findOne({user_id:req.body.user_id})
+	console.log(verify);
+	if(verify && verify.user_id._id === req.body.user_id){
+       verify.status = "notVerified"
+	   await verify.save()
+	   .then((e)=>res.status(201).send(e))
+	   .catch((e)=>console.log(e));
 	}
+	else{
+		const verification = new Verification(req.body);
+		try {
+			await verification.save()
+			.then((e)=>res.status(201).send(e))
+			.catch((e)=>console.log(e));
+			} catch (err) {
+			res.status(500).send();
+		}
+	}
+	
 });
 router.post('/adminVerification',async(req,res)=>{
 	const post = await Verification.findOne({ _id:req.body._id}).populate("user_id");
@@ -60,7 +71,7 @@ try {
 res.status(201).send(post);
 })
 router.post('/getReq',checkPermission(),async(req,res)=>{
-	const post = await Verification.find({}).populate('user_id').sort({createdAt: 'desc'});
+	const post = await Verification.find({}).populate('user_id').populate('admin_id').sort({createdAt: 'desc'});
 
 try {
 	

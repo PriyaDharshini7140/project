@@ -150,6 +150,60 @@ router.delete('/deletePost/:id',checkPermission(), async (req, res) => {
 					}
 				})
 				
+				Solution.find({},(err,s)=>{
+			
+					if(err){
+						console.log(err);
+					}
+					else{
+					  MvpComment.find({},(err,c)=>{
+						  // console.log("c",c);
+						  if(err){
+							  console.log(err);
+						  }
+						  else{
+							  MvpReply.find({},(err,r)=>{
+								  if(err){
+									  console.log(err);
+								  }
+								  else{
+									  c.map((comments)=>{
+										  // console.log("com",comments);
+									   r.map((replys)=>{
+										  //  console.log("rep",replys.comment_id);
+											  if(comments._id.toString() === replys.comment_id.toString())
+											  {
+												  return replys.remove()
+												  
+											  }
+										  })
+									  })
+	  
+								  }
+							  })
+							s.map((a)=>{
+							  c.map((e)=>{
+								  console.log("solution",e.solution_id);
+									 if(a._id.toString() === e.solution_id.toString()){
+									   return e.remove()
+									 
+	  
+									 }
+								 })
+								 
+							})
+							  
+						  }
+					  })
+					  
+					}
+					s.map((e)=>{
+						// console.log(e);
+						if(p._id.toString() === e.post_id.toString()){
+						   return e.remove()
+						}
+					})
+			  })
 			  }
 		});
 		

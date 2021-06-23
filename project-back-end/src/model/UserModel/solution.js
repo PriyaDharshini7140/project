@@ -25,5 +25,15 @@ post_id:{
     down_vote:[{type: Schema.Types.ObjectId,
         ref: 'users'
     }],
+    up_vote_count:{
+        type:Number,
+       default:0
+    }
     }, { timestamps: true });
+    solutionSchema.pre('save', function (next) {
+       
+        this.up_vote_count=this.up_vote.length*(+1)
+
+        next();
+      })
 module.exports = Solution = mongoose.model('solutions',solutionSchema);
