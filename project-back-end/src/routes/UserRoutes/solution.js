@@ -9,7 +9,7 @@ const MvpReply = require("../../model/UserModel/SolutionReply")
 const Solution = require('../../model/UserModel/solution');
 
 //1. add a new post
-router.post('/addSolution', async (req, res) => {
+router.post('/addSolution',checkPermission(), async (req, res) => {
 	const mvp = new Solution(req.body);
 	console.log(mvp);
 	try {
@@ -22,7 +22,7 @@ router.post('/addSolution', async (req, res) => {
 	}
 });
 
-router.post('/getMvp', async (req, res) => {
+router.post('/getMvp',checkPermission(), async (req, res) => {
     try {
         
    
@@ -51,7 +51,7 @@ router.post('/getMvp', async (req, res) => {
     }
 });
 
-router.patch('/updateSolution/:id/:pid',async (req, res) => {
+router.patch('/updateSolution/:id/:pid',checkPermission(),async (req, res) => {
 	const user = await User.findById(req.params.id);
 	const updates = Object.keys(req.body);
 	console.log(updates);
@@ -87,8 +87,27 @@ router.patch('/updateSolution/:id/:pid',async (req, res) => {
 	}
 });
 
+router.post('/selected',checkPermission(),async(req,res)=>{
+	const post = await Solution.findOne({ _id:req.body._id});
+    console.log(post.selected);
+	
+try {
 
-router.post('/like',async(req,res)=>{
+	if(post.selected === false){
+		post.selected = true
+		
+	}
+	else if(post.selected === true){
+		post.selected = false
+	}
+	await post.save();
+	res.status(201).send(post);
+	
+} catch (err) {
+	res.status(500).send();
+}
+})
+router.post('/like',checkPermission(),async(req,res)=>{
 		const post = await Solution.findOne({ _id:req.body._id});
 		const user = req.body.user_id
 	    const up = post.up_vote.includes(user)
@@ -112,7 +131,7 @@ router.post('/like',async(req,res)=>{
 	}
 })
 
-router.post('/dislike',async(req,res)=>{
+router.post('/dislike',checkPermission(),async(req,res)=>{
 	const post = await Solution.findOne({ _id:req.body._id});
 		const user = req.body.user_id
 		const up = post.up_vote.includes(user)
@@ -136,7 +155,7 @@ router.post('/dislike',async(req,res)=>{
 	}
 })
 // // 3.delete a post
-router.delete('/deleteMvp/:id', async (req, res) => {
+router.delete('/deleteMvp/:id',checkPermission(), async (req, res) => {
 	// console.log("delete post",req.body._id);
 	try {
 		const post = await Solution.findById(req.params.id,(err,p)=>{
