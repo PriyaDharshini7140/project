@@ -17,7 +17,10 @@ post_id:{
         type:String,
         required:true
     },
-    
+    selected:{
+          type:Boolean,
+          default:false
+    },
     up_vote:[{type: Schema.Types.ObjectId,
         ref: 'users',
        
